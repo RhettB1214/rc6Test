@@ -61,7 +61,7 @@
 #define LD1 10  //Defines a macro for the front left drive motor port and sets it to port 11
 #define LD2 20 //Defines a macro for the bottom back left drive motor port and sets it to port 12
 #define LD3 19 //Defines a macro for the top back left drive motor port and sets it to port 13
-#define RD1 12 //Defines a macro for the front right drive motor port and sets it to port 20
+#define RD1 14 //Defines a macro for the front right drive motor port and sets it to port 20
 #define RD2 11 //Defines a macro for the bottom back right drive motor port and sets it to port 19 
 #define RD3 1 //Defines a macro for the top back right drive motor port and sets it to port 18
 
@@ -71,7 +71,9 @@
 
 
 //Three-Wire Device Port Definitions
-#define WING_ADIDO 'H' //Defines a macro for the pnuematic wing solenoid adi port and sets it to three wire port H
+#define VERTW_ADIDO 'H' //Defines a macro for the pnuematic wing solenoid adi port and sets it to three wire port H
+#define HORIW_ADIDO 'A' //Defines a macro for the pnuematic horizantal solenoid adi port and sets it to three wire port G
+#define BLOCKER_ADIDO 'G' 
 
 
 //Short Hands For Chassis

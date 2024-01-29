@@ -1,15 +1,20 @@
 #include "main.h"
 #include "lemlib/api.hpp"
+#include "autoSelect/selection.h"
 #include "definitions.hpp"
 
-//ASSET Defintions
+
+/*ASSET Defintions*/
 
 	/*Red Far*/
-	ASSET(penis_txt);
+	ASSET(RedFar1_txt);
+	ASSET(RedFar2_txt);
+	ASSET(RedFar3_txt);
+	ASSET(RedFar4_txt);
 
 	/*Red Close*/
-	ASSET(RedClose1_txt);
-	ASSET(RedClose2_txt);
+	ASSET(Close1_txt);
+	ASSET(Close2_txt);
 	ASSET(RedClose3_txt);
 	ASSET(RedClose4_txt);
 
@@ -35,9 +40,10 @@
     /*Controller Variables*/
     bool lastKnownButtonR1State;
 	bool lastKnownButtonBState;
-	bool lastKnownButtonUpState;
+	bool lastKnownButtonYState;
+	bool lastKnownButtonRightState;
 	bool wingToggle = false;
-	bool actuatateWings = false;
+	bool blockerToggle = false;
 
 	/*Cata Variables*/
 	bool slapperFireToggle = false;
@@ -74,7 +80,9 @@
 	pros::Motor slapperMotor(SLAP_PORT, TORQUEBOX, true);
 	pros::Motor intakeMotor(INTAKE_PORT, SPEEDBOX, false);
 
-	pros::ADIDigitalOut wingPnuem(WING_ADIDO);
+	pros::ADIDigitalOut vertWingPnuem(VERTW_ADIDO);
+	pros::ADIDigitalOut horiWingPnuem(HORIW_ADIDO);
+	pros::ADIDigitalOut blockerPnuem(BLOCKER_ADIDO);
 
 
 
@@ -120,10 +128,10 @@
 	/*Lateral (Forwards/Backwards) PID Initilization*/
 	lemlib::ControllerSettings lateralController
 	(
-		16,  //16, // kP
-        3, // kI
-		80, //72, // kD
-        4, // Windup Range
+		8,  //16, // kP
+        0, //3 // kI
+		32, //80, // kD
+        0, //4 // Windup Range
 		1, // smallErrorRange
 		100, // smallErrorTimeout
 		3, // largeErrorRange
@@ -135,9 +143,9 @@
 
 	/*Angular (Turning) PID Initilization*/
 	lemlib::ControllerSettings angularController(
-		7,  //10 // kP
+		4,  //7 // kP
         0, // kI
-		60, //60 // kD
+		40, //60 // kD
         0, // Windup Range
 		1, // smallErrorRange
 		100, // smallErrorTimeout
@@ -156,16 +164,6 @@
 /*End of LemLib Chassis Initializations*/
 
 
-void screen() {
-    // loop forever
-    while (true) {
-        lemlib::Pose pose = drive.getPose(); // get the current position of the robot
-        pros::lcd::print(0, "x: %f", pose.x); // print the x position
-        pros::lcd::print(1, "y: %f", pose.y); // print the y position
-        pros::lcd::print(2, "heading: %f", pose.theta); // print the heading
-        pros::delay(10);
-    }
-}
 
 
 /**
@@ -176,7 +174,7 @@ void screen() {
  */
 void initialize() 
 {
-	lemlib::infoSink()->setLowestLevel(lemlib::Level::DEBUG);
+	selector::init();
 	drive.calibrate();
 	intakeMotor.set_brake_mode(HOLD);
 	slapperMotor.set_brake_mode(COAST);	
@@ -216,14 +214,85 @@ void autonomous()
 	lDrive.set_brake_modes(HOLD);
 	rDrive.set_brake_modes(HOLD);
 
-	drive.setPose(14, -56.7, 270);
-	intakeMotor.move(127);
-	drive.moveToPose(8, -60, 270, 1000, {.minSpeed = 100});
-	drive.waitUntilDone();
-	pros::delay(150);
-	drive.moveToPose(14, -60, 270, 1000);
-	drive.waitUntilDone();
-	drive.follow(penis_txt, 25, 10000, false);
+	switch(selector::auton)
+	{
+		case 1:
+			drive.setPose(48.026, -55.261, 318);
+			horiWingPnuem.set_value(1);
+			pros::delay(300);
+			horiWingPnuem.set_value(0);
+			intakeMotor.move(127);
+			drive.follow(RedFar1_txt, 15, 2000);
+			drive.waitUntilDone();
+			vertWingPnuem.set_value(1);
+			pros::delay(200);
+			drive.moveToPoint(50, 0, 1000, {.forwards = false});
+			drive.waitUntilDone();
+			drive.moveToPoint(25, 0, 500,{.forwards = true});
+			drive.waitUntilDone();
+			vertWingPnuem.set_value(0);
+			pros::delay(600);
+			drive.moveToPoint(50, 0, 1500);
+			drive.moveToPoint(35, 0, 500, {.forwards = false});
+			drive.turnTo(35, -60, 500, {});
+			drive.follow(RedFar2_txt, 15, 2250);
+			drive.waitUntilDone();
+			drive.moveToPoint(25, -24, 1000, {.forwards = false});
+			drive.turnTo(65, -65, 500, {});
+			drive.waitUntilDone();
+			pros::delay(250);
+			drive.follow(RedFar3_txt, 15, 4350);
+			drive.waitUntilDone();
+			drive.moveToPose(poseX, poseY, 45, 500);
+			drive.waitUntilDone();
+			vertWingPnuem.set_value(1);
+			pros::delay(200);
+			drive.moveToPose(poseX, poseY, -45, 500);
+			drive.waitUntilDone();
+			intakeMotor.move(-127);
+			vertWingPnuem.set_value(0);
+			pros::delay(200);
+			horiWingPnuem.set_value(1);
+			pros::delay(200);
+			horiWingPnuem.set_value(0);
+			drive.moveToPose(poseX, poseY, 35, 500);
+			drive.waitUntilDone();
+			drive.moveToPoint(60, -24, 1000, {.minSpeed = 127});
+			drive.waitUntilDone();
+			drive.moveToPoint(60, -32, 1000, {.forwards = false, .minSpeed = 127});
+			drive.moveToPoint(60, -24, 1000, {.minSpeed = 127});
+			break;
+
+		case 2:
+			drive.setPose({-53, -52, -45});
+			drive.follow(Close1_txt, 15, 2000, false);
+			drive.follow(Close2_txt, 15, 2000);
+			vertWingPnuem.set_value(1);
+			pros::delay(200);
+			drive.turnTo(65, -64, 500, {});
+			drive.waitUntilDone();
+			vertWingPnuem.set_value(0);
+			drive.moveToPoint(-11, -60, 2000);
+			/*drive.follow(RedClose1_txt, 15, 2000);
+			drive.waitUntil(26);
+			intakeMotor.move(-127);
+			drive.waitUntilDone();
+			intakeMotor.move(0);
+			pros::delay(1000);
+			drive.follow(RedClose2_txt, 15, 1500, false);
+			drive.waitUntil(4);
+			vertWingPnuem.set_value(1);
+			drive.waitUntilDone();
+			vertWingPnuem.set_value(0);
+			pros::delay(500);
+			drive.follow(RedClose3_txt, 15, 2000);
+			drive.waitUntilDone();
+			drive.follow(RedClose4_txt, 15, 1500, false);
+			drive.waitUntilDone();*/
+			break;
+	}
+	
+	
 }
 
 /**
@@ -241,5 +310,83 @@ void autonomous()
  */
 void opcontrol() 
 {
+	lDrive.set_brake_modes(COAST);
+	rDrive.set_brake_modes(COAST);
+
+	while(true)
+	{
+		drive.tank(masterLeftY, masterRightY, 5);
+
+
+		if (masterL1)
+		{
+			intakeMotor.move(-127);
+		}
+		else if (masterL2) 
+		{
+			intakeMotor.move(127);
+		}
+		else
+		{
+			intakeMotor.move(0);
+		}
+
+
+		if (masterR1 != lastKnownButtonR1State)
+		{
+			lastKnownButtonR1State = masterR1;
+			if (masterR1)
+			{
+				slapperFireToggle = !slapperFireToggle;
+			}
+		}
+
+		if (slapperFireToggle)
+		{
+			slapperMotor.move(115);
+		}
+		else
+		{
+			slapperMotor.move(0);
+		}
+
+		if (masterR2)
+		{
+			horiWingPnuem.set_value(1);
+		}
+		else
+		{
+			horiWingPnuem.set_value(0);
+		}
+
+		// Vertical Wing Pneumatics Toggle
+		if(masterY != lastKnownButtonYState)
+		{
+			lastKnownButtonYState = masterY;
+			if(masterY)
+			{
+				wingToggle = !wingToggle;
+				vertWingPnuem.set_value(wingToggle);
+			}
+		}
+
+
+		if(masterRight != lastKnownButtonRightState)
+		{
+			lastKnownButtonRightState = masterRight;
+			if(masterRight)
+			{
+				blockerToggle = !blockerToggle;
+				blockerPnuem.set_value(blockerToggle);
+			}
+		}
+
+		
+
+
+
+
+
+	}
 	
 }
