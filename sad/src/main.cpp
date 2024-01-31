@@ -2,6 +2,10 @@
 #include "lemlib/api.hpp"
 #include "autoSelect/selection.h"
 #include "definitions.hpp"
+#include "pros/distance.hpp"
+#include "pros/rtos.hpp"
+
+
 
 
 /*ASSET Defintions*/
@@ -42,11 +46,16 @@
 	bool lastKnownButtonBState;
 	bool lastKnownButtonYState;
 	bool lastKnownButtonRightState;
+	bool lastKnownButtonDownState;
 	bool wingToggle = false;
 	bool blockerToggle = false;
+	bool hangToggle = false;
 
-	/*Cata Variables*/
+	/*Kicker Variables*/
 	bool slapperFireToggle = false;
+	bool kickerSet = false;
+
+
 
 
 /*End of Variable Definitions*/
@@ -77,12 +86,15 @@
 
 	/*Non-DT Initializations*/
 
-	pros::Motor slapperMotor(SLAP_PORT, TORQUEBOX, true);
+	pros::Motor slapperMotor(SLAP_PORT, TORQUEBOX, true, pros::E_MOTOR_ENCODER_DEGREES);
 	pros::Motor intakeMotor(INTAKE_PORT, SPEEDBOX, false);
+
+	pros::Distance kickerDistance(DISTANCE_PORT);
 
 	pros::ADIDigitalOut vertWingPnuem(VERTW_ADIDO);
 	pros::ADIDigitalOut horiWingPnuem(HORIW_ADIDO);
 	pros::ADIDigitalOut blockerPnuem(BLOCKER_ADIDO);
+	pros::ADIDigitalOut hangPnuem(HANG_ADIDO);
 
 
 
@@ -162,6 +174,21 @@
 
 
 /*End of LemLib Chassis Initializations*/
+
+
+void slapperControl()
+{
+	while (kickerDistance.get() <= 10)
+	{
+		slapperMotor.move(127);
+	}
+	if(kickerDistance.get() > 10)
+	{
+		slapperMotor.move(0);
+	}
+}
+
+
 
 
 
@@ -313,9 +340,17 @@ void opcontrol()
 	lDrive.set_brake_modes(COAST);
 	rDrive.set_brake_modes(COAST);
 
+	pros::Task kickerTask(slapperControl);
+	//load();
+
 	while(true)
 	{
+		
+		std::cout << "Distance: " << kickerDistance.get() << " Motor Position: " << slapperMotor.get_position() << std::endl;
+
 		drive.tank(masterLeftY, masterRightY, 5);
+
+		
 
 
 		if (masterL1)
@@ -380,6 +415,27 @@ void opcontrol()
 				blockerPnuem.set_value(blockerToggle);
 			}
 		}
+
+		if(masterDown != lastKnownButtonDownState)
+		{
+			lastKnownButtonDownState = masterDown;
+			if(masterDown && blockerToggle == false)
+			{
+				blockerToggle = !blockerToggle;
+				blockerPnuem.set_value(blockerToggle);
+			}
+			else if(masterDown && blockerToggle == true)
+			{
+				hangToggle = !hangToggle;
+				hangPnuem.set_value(hangToggle);
+				blockerToggle = !blockerToggle;
+				blockerPnuem.set_value(blockerToggle);
+				
+			}
+			
+		}
+
+
 
 		
 

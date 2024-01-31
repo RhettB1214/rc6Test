@@ -56,24 +56,26 @@
 
 
 //Motor Port Definitions
-#define INTAKE_PORT 18 //Defines a macro for the intake motor port and sets it to port 15
+#define INTAKE_PORT 9 //Defines a macro for the intake motor port and sets it to port 15
 #define SLAP_PORT 2 //Defines a macro for the slapper motor port and sets it to port 20
-#define LD1 10  //Defines a macro for the front left drive motor port and sets it to port 11
+#define LD1 18  //Defines a macro for the front left drive motor port and sets it to port 11
 #define LD2 20 //Defines a macro for the bottom back left drive motor port and sets it to port 12
-#define LD3 19 //Defines a macro for the top back left drive motor port and sets it to port 13
-#define RD1 14 //Defines a macro for the front right drive motor port and sets it to port 20
+#define LD3 10 //Defines a macro for the top back left drive motor port and sets it to port 13
+#define RD1 13 //Defines a macro for the front right drive motor port and sets it to port 20
 #define RD2 11 //Defines a macro for the bottom back right drive motor port and sets it to port 19 
 #define RD3 1 //Defines a macro for the top back right drive motor port and sets it to port 18
 
-//Misc Port Definitions
-#define ODOM_ROT 13 //Defines a macro for the odometry rotation port and sets it to port 6
-#define IMU_PORT 16 //Defines a macro for the imu sensor port and sets it to port 14
+//Sensor Port Definitions
+#define ODOM_ROT 19 //Defines a macro for the odometry rotation port and sets it to port 6
+#define IMU_PORT 14 //Defines a macro for the imu sensor port and sets it to port 14
+#define DISTANCE_PORT 3 //Defines a macro for the distance sensor port and sets it to port 3
 
 
 //Three-Wire Device Port Definitions
-#define VERTW_ADIDO 'H' //Defines a macro for the pnuematic wing solenoid adi port and sets it to three wire port H
-#define HORIW_ADIDO 'A' //Defines a macro for the pnuematic horizantal solenoid adi port and sets it to three wire port G
-#define BLOCKER_ADIDO 'G' 
+#define VERTW_ADIDO 'A' //Defines a macro for the pnuematic wing solenoid adi port and sets it to three wire port H
+#define HORIW_ADIDO 'B' //Defines a macro for the pnuematic horizantal solenoid adi port and sets it to three wire port G
+#define BLOCKER_ADIDO 'G'
+#define HANG_ADIDO 'H' 
 
 
 //Short Hands For Chassis
